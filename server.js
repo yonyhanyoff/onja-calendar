@@ -1,31 +1,55 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const fs = require('fs');
-const path = require('path');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const DATA_FILE = path.join(__dirname, 'data.json');
+const MONGO_URI = process.env.MONGO_URI || '';
 
-function loadData() {
+let db;
+let scheduleData = {};
+
+async function connectDB() {
+  if (!MONGO_URI) {
+    console.log('No MONGO_URI set, using in-memory storage');
+    return;
+  }
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    const client = new MongoClient(MONGO_URI);
+    await client.connect();
+    db = client.db('onja');
+    console.log('Connected to MongoDB');
+
+    // Load all schedules from DB
+    const docs = await db.collection('schedules').find({}).toArray();
+    docs.forEach(doc => {
+      scheduleData[doc.dateKey] = doc.entries;
+    });
+    console.log(`Loaded ${docs.length} days from DB`);
+  } catch (e) {
+    console.error('MongoDB connection failed:', e.message);
+  }
+}
+
+async function saveToDb(dateKey) {
+  if (!db) return;
+  try {
+    if (scheduleData[dateKey] && scheduleData[dateKey].length > 0) {
+      await db.collection('schedules').updateOne(
+        { dateKey },
+        { $set: { dateKey, entries: scheduleData[dateKey] } },
+        { upsert: true }
+      );
+    } else {
+      await db.collection('schedules').deleteOne({ dateKey });
     }
   } catch (e) {
-    console.error('Error loading data:', e);
+    console.error('DB save error:', e.message);
   }
-  return {};
 }
-
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-}
-
-let scheduleData = loadData();
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -45,7 +69,6 @@ app.get('/api/schedules', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('User connected');
-
   socket.emit('init', scheduleData);
 
   socket.on('updateSchedule', (data) => {
@@ -59,7 +82,7 @@ io.on('connection', (socket) => {
     const id = Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     scheduleData[dateKey].push({ id, text, author, time: time || 'allday' });
 
-    saveData(scheduleData);
+    saveToDb(dateKey);
     io.emit('scheduleUpdated', { dateKey, entries: scheduleData[dateKey] });
   });
 
@@ -70,7 +93,7 @@ io.on('connection', (socket) => {
       if (scheduleData[dateKey].length === 0) {
         delete scheduleData[dateKey];
       }
-      saveData(scheduleData);
+      saveToDb(dateKey);
       io.emit('scheduleUpdated', { dateKey, entries: scheduleData[dateKey] || [] });
     }
   });
@@ -81,6 +104,9 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+
+connectDB().then(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
