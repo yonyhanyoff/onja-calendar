@@ -46,6 +46,29 @@ app.get('/api/schedules', (req, res) => {
   res.json(scheduleData);
 });
 
+// iCal feed for Google Calendar subscription
+app.get('/api/calendar.ics', (req, res) => {
+  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//OnjaCalendar//EN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:온자 캘린더\r\n';
+
+  for (const [dateKey, entries] of Object.entries(scheduleData)) {
+    const d = dateKey.replace(/-/g, '');
+    entries.forEach(entry => {
+      const uid = entry.id || Date.now() + Math.random();
+      ics += 'BEGIN:VEVENT\r\n';
+      ics += `DTSTART;VALUE=DATE:${d}\r\n`;
+      ics += `DTEND;VALUE=DATE:${d}\r\n`;
+      ics += `SUMMARY:[${entry.author}] ${entry.text}\r\n`;
+      ics += `UID:${uid}@onja-calendar\r\n`;
+      ics += 'END:VEVENT\r\n';
+    });
+  }
+
+  ics += 'END:VCALENDAR\r\n';
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="onja-calendar.ics"');
+  res.send(ics);
+});
+
 // Socket.io for real-time updates
 io.on('connection', (socket) => {
   console.log('User connected');
