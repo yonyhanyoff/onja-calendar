@@ -278,6 +278,13 @@
       color: #c2185b;
     }
 
+    .schedule-entry.user-gcal {
+      background: #e3f2fd;
+      color: #1565c0;
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
     /* Modal */
     .modal-overlay {
       display: none;
@@ -341,6 +348,11 @@
     .modal-entry.user-onja {
       background: #fce4ec;
       color: #c2185b;
+    }
+
+    .modal-entry.user-gcal {
+      background: #e3f2fd;
+      color: #1565c0;
     }
 
     .modal-entry .entry-author {
@@ -471,6 +483,96 @@
       color: #333;
     }
 
+    /* Settings Modal */
+    .settings-modal {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 3px solid #333;
+      position: relative;
+    }
+
+    .settings-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .gcal-list {
+      margin-bottom: 16px;
+    }
+
+    .gcal-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #1565c0;
+    }
+
+    .gcal-item .gcal-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 16px;
+    }
+
+    .gcal-item .gcal-remove:hover {
+      color: #ff6b6b;
+    }
+
+    .gcal-add-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gcal-add-row input {
+      font-family: 'Gaegu', cursive;
+      font-size: 15px;
+      padding: 10px 12px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      width: 100%;
+    }
+
+    .gcal-add-row input:focus {
+      border-color: #a0c4ff;
+    }
+
+    .gcal-add-btn {
+      font-family: 'Gaegu', cursive;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 10px;
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .gcal-add-btn:hover {
+      background: #1976d2;
+    }
+
+    .gcal-help {
+      font-size: 13px;
+      color: #999;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
     /* Live indicator */
     .live-dot {
       display: inline-block;
@@ -542,7 +644,7 @@
         <button class="user-pick-btn yohan" onclick="pickUser('요한')">요한</button>
         <button class="user-pick-btn onja" onclick="pickUser('온자')">온자</button>
       </div>
-      <button class="logout-btn" onclick="subscribeGCal()">G캘린더 구독</button>
+      <button class="logout-btn" onclick="openSettings()">G캘린더</button>
       <a href="/album.html" class="logout-btn" style="text-decoration:none;">앨범</a>
       <button class="logout-btn" onclick="logout()">나가기</button>
     </div>
@@ -592,6 +694,27 @@
     </div>
   </div>
 
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="settings-modal">
+      <button class="modal-close" onclick="closeSettings()">&times;</button>
+      <div class="settings-title">구글 캘린더 연동</div>
+      <div class="gcal-list" id="gcalList"></div>
+      <div class="gcal-add-row">
+        <input type="text" id="gcalLabel" placeholder="이름 (예: 현지 구글캘린더)">
+        <input type="text" id="gcalUrl" placeholder="iCal URL 붙여넣기">
+        <button class="gcal-add-btn" onclick="addGcalUrl()">추가</button>
+      </div>
+      <div class="gcal-help">
+        구글 캘린더에서 iCal URL 가져오는 법:<br>
+        1. calendar.google.com 접속<br>
+        2. 왼쪽 캘린더 이름 옆 ... 클릭 → 설정<br>
+        3. "비공개 주소(iCal 형식)" 복사<br>
+        4. 위에 붙여넣기
+      </div>
+    </div>
+  </div>
+
   <script>
     // Auth check
     if (!sessionStorage.getItem('loggedIn')) {
@@ -622,6 +745,7 @@
 
     const socket = io();
     let scheduleData = {};
+    let gcalData = {};
     let selectedDateKey = null;
 
     // Initialize with current month
@@ -631,6 +755,17 @@
 
     // Sync initial button state
     pickUser(currentUser);
+
+    // Load Google Calendar events
+    async function loadGcalEvents() {
+      try {
+        const res = await fetch('/api/gcal-events');
+        gcalData = await res.json();
+        renderCalendar();
+      } catch (e) {}
+    }
+    loadGcalEvents();
+    setInterval(loadGcalEvents, 5 * 60 * 1000);
 
     // Socket events
     socket.on('init', (data) => {
@@ -701,16 +836,18 @@
         dateNum.textContent = day;
         cell.appendChild(dateNum);
 
-        // Schedule entries
+        // Schedule entries + Google Calendar events
         const entries = scheduleData[dateKey] || [];
-        if (entries.length > 0) {
+        const gcalEntries = gcalData[dateKey] || [];
+        const allEntries = [...entries, ...gcalEntries];
+        if (allEntries.length > 0) {
           const entriesDiv = document.createElement('div');
           entriesDiv.className = 'schedule-entries';
-          entries.forEach(entry => {
+          allEntries.forEach(entry => {
             const entryEl = document.createElement('div');
             entryEl.className = 'schedule-entry';
-            entryEl.classList.add(getUserClass(entry.author));
-            entryEl.textContent = entry.text;
+            entryEl.classList.add(entry.isGcal ? 'user-gcal' : getUserClass(entry.author));
+            entryEl.textContent = entry.isGcal ? `${entry.text}` : entry.text;
             entriesDiv.appendChild(entryEl);
           });
           cell.appendChild(entriesDiv);
@@ -738,7 +875,18 @@
     function renderModalEntries(dateKey) {
       const entriesDiv = document.getElementById('modalEntries');
       const entries = scheduleData[dateKey] || [];
+      const gcalEntries = gcalData[dateKey] || [];
       entriesDiv.innerHTML = '';
+
+      // Show Google Calendar events first
+      gcalEntries.forEach(entry => {
+        const el = document.createElement('div');
+        el.className = 'modal-entry user-gcal';
+        const textSpan = document.createElement('span');
+        textSpan.innerHTML = `<span class="entry-author">G</span> ${entry.text}`;
+        el.appendChild(textSpan);
+        entriesDiv.appendChild(el);
+      });
 
       entries.forEach(entry => {
         const el = document.createElement('div');
@@ -806,6 +954,61 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
+
+    // Settings modal
+    async function openSettings() {
+      document.getElementById('settingsModal').classList.add('active');
+      await renderGcalList();
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('active');
+    }
+
+    document.getElementById('settingsModal').onclick = (e) => {
+      if (e.target === document.getElementById('settingsModal')) closeSettings();
+    };
+
+    async function renderGcalList() {
+      const res = await fetch('/api/gcal-urls');
+      const urls = await res.json();
+      const list = document.getElementById('gcalList');
+      list.innerHTML = '';
+      if (urls.length === 0) {
+        list.innerHTML = '<div style="color:#999;font-size:14px;margin-bottom:8px;">등록된 캘린더가 없습니다</div>';
+        return;
+      }
+      urls.forEach((entry, i) => {
+        const el = document.createElement('div');
+        el.className = 'gcal-item';
+        el.innerHTML = `<span>${entry.label}</span>`;
+        const btn = document.createElement('button');
+        btn.className = 'gcal-remove';
+        btn.textContent = '×';
+        btn.onclick = async () => {
+          await fetch('/api/gcal-urls/' + i, { method: 'DELETE' });
+          await renderGcalList();
+          await loadGcalEvents();
+        };
+        el.appendChild(btn);
+        list.appendChild(el);
+      });
+    }
+
+    async function addGcalUrl() {
+      const label = document.getElementById('gcalLabel').value.trim() || 'Google';
+      const url = document.getElementById('gcalUrl').value.trim();
+      if (!url) return;
+      await fetch('/api/gcal-urls', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, label })
+      });
+      document.getElementById('gcalLabel').value = '';
+      document.getElementById('gcalUrl').value = '';
+      await renderGcalList();
+      await loadGcalEvents();
+    }
 
     function addToGoogleCalendar(dateKey, author, text) {
       const d = dateKey.replace(/-/g, '');
