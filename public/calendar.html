@@ -9,11 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Gaegu', cursive;
@@ -22,7 +18,6 @@
       padding: 20px;
     }
 
-    /* Header */
     .header {
       display: flex;
       justify-content: space-between;
@@ -32,607 +27,255 @@
       padding: 0 4px;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
 
     .header-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
+      width: 40px; height: 40px;
+      border-radius: 50%; object-fit: cover;
     }
 
-    .header-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #333;
-    }
+    .header-title { font-size: 22px; font-weight: 700; color: #333; }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
 
-    .user-picker {
-      display: flex;
-      gap: 6px;
-    }
+    .user-picker { display: flex; gap: 6px; }
 
     .user-pick-btn {
       font-family: 'Gaegu', cursive;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 20px;
+      font-size: 16px; font-weight: 700;
+      padding: 6px 14px; border-radius: 20px;
       border: 2.5px solid transparent;
-      cursor: pointer;
-      transition: all 0.2s;
+      cursor: pointer; transition: all 0.2s;
     }
 
-    .user-pick-btn.hyunji {
-      background: #e6f9e6;
-      color: #2e7d32;
-      border-color: #e6f9e6;
-    }
+    .user-pick-btn.hyunji { background: #e6f9e6; color: #2e7d32; border-color: #e6f9e6; }
+    .user-pick-btn.hyunji.active { border-color: #2e7d32; box-shadow: 0 0 0 2px rgba(46,125,50,0.2); }
+    .user-pick-btn.yohan { background: #fff3e0; color: #e65100; border-color: #fff3e0; }
+    .user-pick-btn.yohan.active { border-color: #e65100; box-shadow: 0 0 0 2px rgba(230,81,0,0.2); }
+    .user-pick-btn.onja { background: #fce4ec; color: #c2185b; border-color: #fce4ec; }
+    .user-pick-btn.onja.active { border-color: #c2185b; box-shadow: 0 0 0 2px rgba(194,24,91,0.2); }
 
-    .user-pick-btn.hyunji.active {
-      border-color: #2e7d32;
-      box-shadow: 0 0 0 2px rgba(46,125,50,0.2);
-    }
-
-    .user-pick-btn.yohan {
-      background: #fff3e0;
-      color: #e65100;
-      border-color: #fff3e0;
-    }
-
-    .user-pick-btn.yohan.active {
-      border-color: #e65100;
-      box-shadow: 0 0 0 2px rgba(230,81,0,0.2);
-    }
-
-    .user-pick-btn.onja {
-      background: #fce4ec;
-      color: #c2185b;
-      border-color: #fce4ec;
-    }
-
-    .user-pick-btn.onja.active {
-      border-color: #c2185b;
-      box-shadow: 0 0 0 2px rgba(194,24,91,0.2);
-    }
-
-    .logout-btn {
+    .nav-btn {
       font-family: 'Gaegu', cursive;
-      font-size: 16px;
-      padding: 6px 16px;
-      background: none;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #888;
-      transition: all 0.2s;
+      font-size: 16px; padding: 6px 16px;
+      background: none; border: 2px solid #ddd;
+      border-radius: 8px; cursor: pointer;
+      color: #888; text-decoration: none; transition: all 0.2s;
     }
+    .nav-btn:hover { border-color: #aaa; color: #555; }
 
-    .logout-btn:hover {
-      border-color: #aaa;
-      color: #555;
-    }
-
-    /* Calendar Container */
     .calendar-container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #fff;
-      border: 3px solid #333;
-      border-radius: 16px;
-      overflow: hidden;
+      max-width: 900px; margin: 0 auto;
+      background: #fff; border: 3px solid #333;
+      border-radius: 16px; overflow: hidden;
     }
 
-    /* Month Navigation */
     .month-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 24px;
-      border-bottom: 3px solid #333;
-      background: #fafafa;
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 16px 24px;
+      border-bottom: 3px solid #333; background: #fafafa;
     }
 
     .month-nav button {
       font-family: 'Gaegu', cursive;
-      font-size: 24px;
-      font-weight: 700;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #333;
-      padding: 4px 12px;
-      border-radius: 8px;
-      transition: background 0.2s;
+      font-size: 24px; font-weight: 700;
+      background: none; border: none; cursor: pointer;
+      color: #333; padding: 4px 12px; border-radius: 8px;
     }
+    .month-nav button:hover { background: #eee; }
 
-    .month-nav button:hover {
-      background: #eee;
-    }
+    .month-title { font-size: 28px; font-weight: 700; color: #333; }
 
-    .month-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #333;
-    }
-
-    /* Day Headers */
     .day-headers {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      display: grid; grid-template-columns: repeat(7, 1fr);
       border-bottom: 2px solid #333;
     }
 
     .day-header {
-      text-align: center;
-      padding: 10px 0;
-      font-size: 18px;
-      font-weight: 700;
-      color: #555;
+      text-align: center; padding: 10px 0;
+      font-size: 18px; font-weight: 700; color: #555;
       border-right: 1px solid #ddd;
     }
+    .day-header:last-child { border-right: none; }
+    .day-header.sun { color: #ff6b6b; }
+    .day-header.sat { color: #74b9ff; }
 
-    .day-header:last-child {
-      border-right: none;
-    }
-
-    .day-header.sun {
-      color: #ff6b6b;
-    }
-
-    .day-header.sat {
-      color: #74b9ff;
-    }
-
-    /* Calendar Grid */
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-    }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
 
     .calendar-cell {
-      min-height: 110px;
-      border-right: 1px solid #e0e0e0;
-      border-bottom: 1px solid #e0e0e0;
-      padding: 6px 8px;
-      cursor: pointer;
-      transition: background 0.15s;
-      position: relative;
+      min-height: 110px; border-right: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0; padding: 6px 8px;
+      cursor: pointer; transition: background 0.15s; position: relative;
     }
-
-    .calendar-cell:nth-child(7n) {
-      border-right: none;
-    }
-
-    .calendar-cell:hover {
-      background: #f8f8f8;
-    }
-
-    .calendar-cell.today {
-      background: #fff9e6;
-    }
-
-    .calendar-cell.empty {
-      background: #fafafa;
-      cursor: default;
-    }
-
-    .calendar-cell.empty:hover {
-      background: #fafafa;
-    }
+    .calendar-cell:nth-child(7n) { border-right: none; }
+    .calendar-cell:hover { background: #f8f8f8; }
+    .calendar-cell.today { background: #fff9e6; }
+    .calendar-cell.empty { background: #fafafa; cursor: default; }
+    .calendar-cell.empty:hover { background: #fafafa; }
 
     .date-number {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 4px;
-      color: #333;
-      pointer-events: none;
+      font-size: 16px; font-weight: 700;
+      margin-bottom: 4px; color: #333; pointer-events: none;
     }
-
-    .calendar-cell:nth-child(7n+1) .date-number {
-      color: #ff6b6b;
-    }
-
-    .calendar-cell:nth-child(7n) .date-number {
-      color: #74b9ff;
-    }
+    .calendar-cell:nth-child(7n+1) .date-number { color: #ff6b6b; }
+    .calendar-cell:nth-child(7n) .date-number { color: #74b9ff; }
 
     .schedule-entries {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      pointer-events: none;
+      display: flex; flex-direction: column;
+      gap: 2px; pointer-events: none;
     }
 
     .schedule-entry {
-      font-size: 14px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      line-height: 1.3;
-      word-break: break-word;
-      pointer-events: none;
+      font-size: 13px; padding: 2px 6px;
+      border-radius: 4px; line-height: 1.3;
+      word-break: break-word; pointer-events: none;
     }
 
-    .schedule-entry.user-hyunji {
-      background: #e6f9e6;
-      color: #2e7d32;
+    .schedule-entry .entry-time {
+      font-size: 11px; font-weight: 700; margin-right: 2px;
     }
 
-    .schedule-entry.user-yohan {
-      background: #fff3e0;
-      color: #e65100;
-    }
-
-    .schedule-entry.user-onja {
-      background: #fce4ec;
-      color: #c2185b;
-    }
-
-    .schedule-entry.user-gcal {
-      background: #e3f2fd;
-      color: #1565c0;
-      font-size: 12px;
-      opacity: 0.85;
-    }
+    .schedule-entry.user-hyunji { background: #e6f9e6; color: #2e7d32; }
+    .schedule-entry.user-yohan { background: #fff3e0; color: #e65100; }
+    .schedule-entry.user-onja { background: #fce4ec; color: #c2185b; }
 
     /* Modal */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.3);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.3);
+      z-index: 100; justify-content: center; align-items: center;
     }
-
-    .modal-overlay.active {
-      display: flex;
-    }
+    .modal-overlay.active { display: flex; }
 
     .modal {
-      background: white;
-      border-radius: 16px;
-      padding: 28px;
-      width: 440px;
-      max-height: 90vh;
-      overflow-y: auto;
-      border: 3px solid #333;
-      position: relative;
+      background: white; border-radius: 16px;
+      padding: 28px; width: 440px; max-height: 90vh;
+      overflow-y: auto; border: 3px solid #333; position: relative;
     }
 
     .modal-date {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #333;
+      font-size: 22px; font-weight: 700;
+      margin-bottom: 16px; color: #333;
     }
 
-    .modal-entries {
-      margin-bottom: 16px;
-    }
+    .modal-entries { margin-bottom: 16px; }
 
     .modal-entry {
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       justify-content: space-between;
-      padding: 8px 10px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 16px;
+      padding: 8px 10px; border-radius: 8px;
+      margin-bottom: 6px; font-size: 16px;
     }
-
-    .modal-entry.user-hyunji {
-      background: #e6f9e6;
-      color: #2e7d32;
-    }
-
-    .modal-entry.user-yohan {
-      background: #fff3e0;
-      color: #e65100;
-    }
-
-    .modal-entry.user-onja {
-      background: #fce4ec;
-      color: #c2185b;
-    }
-
-    .modal-entry.user-gcal {
-      background: #e3f2fd;
-      color: #1565c0;
-    }
+    .modal-entry.user-hyunji { background: #e6f9e6; color: #2e7d32; }
+    .modal-entry.user-yohan { background: #fff3e0; color: #e65100; }
+    .modal-entry.user-onja { background: #fce4ec; color: #c2185b; }
 
     .modal-entry .entry-author {
-      font-weight: 700;
-      margin-right: 8px;
-      font-size: 13px;
+      font-weight: 700; margin-right: 6px; font-size: 13px;
+    }
+    .modal-entry .entry-time-label {
+      font-size: 13px; font-weight: 700; margin-right: 4px;
     }
 
-    .modal-entry-actions {
-      display: flex;
-      gap: 4px;
-      flex-shrink: 0;
+    .modal-entry .delete-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; color: #aaa; padding: 2px 6px;
+      border-radius: 4px; flex-shrink: 0;
     }
-
-    .modal-entry .delete-btn,
-    .modal-entry .gcal-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      color: #aaa;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
     .modal-entry .delete-btn:hover {
-      color: #ff6b6b;
-      background: rgba(255,107,107,0.1);
-    }
-
-    .modal-entry .gcal-btn:hover {
-      color: #4285f4;
-      background: rgba(66,133,244,0.1);
+      color: #ff6b6b; background: rgba(255,107,107,0.1);
     }
 
     .modal-user-picker {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
+      display: flex; gap: 6px; margin-bottom: 12px;
     }
 
     .modal-user-btn {
       font-family: 'Gaegu', cursive;
-      font-size: 15px;
-      font-weight: 700;
-      padding: 5px 14px;
-      border-radius: 16px;
+      font-size: 15px; font-weight: 700;
+      padding: 5px 14px; border-radius: 16px;
       border: 2.5px solid transparent;
-      cursor: pointer;
-      transition: all 0.2s;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .modal-user-btn.hyunji { background: #e6f9e6; color: #2e7d32; }
+    .modal-user-btn.hyunji.active { border-color: #2e7d32; }
+    .modal-user-btn.yohan { background: #fff3e0; color: #e65100; }
+    .modal-user-btn.yohan.active { border-color: #e65100; }
+    .modal-user-btn.onja { background: #fce4ec; color: #c2185b; }
+    .modal-user-btn.onja.active { border-color: #c2185b; }
+
+    .modal-time-row {
+      display: flex; gap: 8px; margin-bottom: 10px; align-items: center;
     }
 
-    .modal-user-btn.hyunji {
-      background: #e6f9e6;
-      color: #2e7d32;
+    .time-select {
+      font-family: 'Gaegu', cursive;
+      font-size: 16px; padding: 8px 10px;
+      border: 2px solid #ddd; border-radius: 10px;
+      outline: none; cursor: pointer;
+    }
+    .time-select:focus { border-color: #a0c4ff; }
+
+    .allday-btn {
+      font-family: 'Gaegu', cursive;
+      font-size: 15px; font-weight: 700;
+      padding: 8px 14px; border-radius: 10px;
+      border: 2px solid #ddd; background: white;
+      cursor: pointer; transition: all 0.2s; color: #888;
+    }
+    .allday-btn.active {
+      background: #333; color: white; border-color: #333;
     }
 
-    .modal-user-btn.hyunji.active {
-      border-color: #2e7d32;
-    }
-
-    .modal-user-btn.yohan {
-      background: #fff3e0;
-      color: #e65100;
-    }
-
-    .modal-user-btn.yohan.active {
-      border-color: #e65100;
-    }
-
-    .modal-user-btn.onja {
-      background: #fce4ec;
-      color: #c2185b;
-    }
-
-    .modal-user-btn.onja.active {
-      border-color: #c2185b;
-    }
-
-    .modal-input-row {
-      display: flex;
-      gap: 8px;
-    }
+    .modal-input-row { display: flex; gap: 8px; }
 
     .modal-input {
       font-family: 'Gaegu', cursive;
-      font-size: 18px;
-      flex: 1;
-      padding: 12px 16px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      outline: none;
-      min-width: 0;
+      font-size: 18px; flex: 1;
+      padding: 12px 16px; border: 2px solid #ddd;
+      border-radius: 10px; outline: none; min-width: 0;
     }
-
-    .modal-input:focus {
-      border-color: #a0c4ff;
-    }
+    .modal-input:focus { border-color: #a0c4ff; }
 
     .modal-save-btn {
       font-family: 'Gaegu', cursive;
-      font-size: 17px;
-      font-weight: 700;
-      padding: 10px 18px;
-      background: #333;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+      font-size: 17px; font-weight: 700;
+      padding: 10px 18px; background: #333;
+      color: white; border: none; border-radius: 10px; cursor: pointer;
     }
-
-    .modal-save-btn:hover {
-      background: #555;
-    }
+    .modal-save-btn:hover { background: #555; }
 
     .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      font-size: 22px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #aaa;
+      position: absolute; top: 12px; right: 16px;
+      font-size: 22px; background: none; border: none;
+      cursor: pointer; color: #aaa;
     }
+    .modal-close:hover { color: #333; }
 
-    .modal-close:hover {
-      color: #333;
-    }
-
-    /* Settings Modal */
-    .settings-modal {
-      background: white;
-      border-radius: 16px;
-      padding: 28px;
-      width: 480px;
-      max-height: 90vh;
-      overflow-y: auto;
-      border: 3px solid #333;
-      position: relative;
-    }
-
-    .settings-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      color: #333;
-    }
-
-    .gcal-list {
-      margin-bottom: 16px;
-    }
-
-    .gcal-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      background: #e3f2fd;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 14px;
-      color: #1565c0;
-    }
-
-    .gcal-item .gcal-remove {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #aaa;
-      font-size: 16px;
-    }
-
-    .gcal-item .gcal-remove:hover {
-      color: #ff6b6b;
-    }
-
-    .gcal-add-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .gcal-add-row input {
-      font-family: 'Gaegu', cursive;
-      font-size: 15px;
-      padding: 10px 12px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      outline: none;
-      width: 100%;
-    }
-
-    .gcal-add-row input:focus {
-      border-color: #a0c4ff;
-    }
-
-    .gcal-add-btn {
-      font-family: 'Gaegu', cursive;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 10px;
-      background: #1565c0;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .gcal-add-btn:hover {
-      background: #1976d2;
-    }
-
-    .gcal-help {
-      font-size: 13px;
-      color: #999;
-      margin-top: 12px;
-      line-height: 1.5;
-    }
-
-    /* Live indicator */
     .live-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      background: #4caf50;
-      border-radius: 50%;
-      margin-right: 6px;
-      animation: pulse 2s infinite;
+      display: inline-block; width: 8px; height: 8px;
+      background: #4caf50; border-radius: 50%;
+      margin-right: 6px; animation: pulse 2s infinite;
     }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     .status-bar {
-      max-width: 900px;
-      margin: 10px auto 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      color: #999;
-      padding: 0 4px;
+      max-width: 900px; margin: 10px auto 0;
+      display: flex; justify-content: space-between;
+      align-items: center; font-size: 14px; color: #999; padding: 0 4px;
     }
 
-    /* Responsive */
     @media (max-width: 640px) {
-      body {
-        padding: 10px;
-      }
-
-      .calendar-cell {
-        min-height: 80px;
-        padding: 4px;
-      }
-
-      .date-number {
-        font-size: 13px;
-      }
-
-      .schedule-entry {
-        font-size: 11px;
-        padding: 1px 4px;
-      }
-
-      .month-title {
-        font-size: 22px;
-      }
-
-      .day-header {
-        font-size: 14px;
-        padding: 8px 0;
-      }
+      body { padding: 10px; }
+      .calendar-cell { min-height: 80px; padding: 4px; }
+      .date-number { font-size: 13px; }
+      .schedule-entry { font-size: 11px; padding: 1px 4px; }
+      .month-title { font-size: 22px; }
+      .day-header { font-size: 14px; padding: 8px 0; }
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
   <div class="header">
     <div class="header-left">
       <img src="title.jpg" alt="" class="header-logo">
@@ -644,13 +287,11 @@
         <button class="user-pick-btn yohan" onclick="pickUser('요한')">요한</button>
         <button class="user-pick-btn onja" onclick="pickUser('온자')">온자</button>
       </div>
-      <button class="logout-btn" onclick="openSettings()">G캘린더</button>
-      <a href="/album.html" class="logout-btn" style="text-decoration:none;">앨범</a>
-      <button class="logout-btn" onclick="logout()">나가기</button>
+      <a href="/album.html" class="nav-btn">앨범</a>
+      <button class="nav-btn" onclick="logout()">나가기</button>
     </div>
   </div>
 
-  <!-- Calendar -->
   <div class="calendar-container">
     <div class="month-nav">
       <button onclick="changeMonth(-1)">&larr;</button>
@@ -669,13 +310,11 @@
     <div class="calendar-grid" id="calendarGrid"></div>
   </div>
 
-  <!-- Status Bar -->
   <div class="status-bar">
     <span><span class="live-dot"></span>실시간 연결됨</span>
     <span id="userLabel"></span>
   </div>
 
-  <!-- Schedule Modal -->
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -686,6 +325,12 @@
         <button class="modal-user-btn yohan" onclick="pickUser('요한')">요한</button>
         <button class="modal-user-btn onja" onclick="pickUser('온자')">온자</button>
       </div>
+      <div class="modal-time-row">
+        <select class="time-select" id="timeHour"></select>
+        <span style="font-size:18px;font-weight:700;">:</span>
+        <select class="time-select" id="timeMin"></select>
+        <button class="allday-btn active" id="alldayBtn" onclick="toggleAllday()">ALL DAY</button>
+      </div>
       <div class="modal-input-row">
         <input type="text" class="modal-input" id="modalInput" placeholder="스케줄 적기..."
                onkeydown="if(event.key==='Enter')saveSchedule()">
@@ -694,47 +339,23 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
-  <div class="modal-overlay" id="settingsModal">
-    <div class="settings-modal">
-      <button class="modal-close" onclick="closeSettings()">&times;</button>
-      <div class="settings-title">구글 캘린더 연동</div>
-      <div class="gcal-list" id="gcalList"></div>
-      <div class="gcal-add-row">
-        <input type="text" id="gcalLabel" placeholder="이름 (예: 현지 구글캘린더)">
-        <input type="text" id="gcalUrl" placeholder="iCal URL 붙여넣기">
-        <button class="gcal-add-btn" onclick="addGcalUrl()">추가</button>
-      </div>
-      <div class="gcal-help">
-        구글 캘린더에서 iCal URL 가져오는 법:<br>
-        1. calendar.google.com 접속<br>
-        2. 왼쪽 캘린더 이름 옆 ... 클릭 → 설정<br>
-        3. "비공개 주소(iCal 형식)" 복사<br>
-        4. 위에 붙여넣기
-      </div>
-    </div>
-  </div>
-
   <script>
-    // Auth check
     if (!sessionStorage.getItem('loggedIn')) {
       window.location.href = '/';
     }
 
     let currentUser = sessionStorage.getItem('selectedUser') || '현지';
-
     const nameToClass = { '현지': 'hyunji', '요한': 'yohan', '온자': 'onja' };
+    let isAllday = true;
 
     function pickUser(name) {
       currentUser = name;
       sessionStorage.setItem('selectedUser', name);
-
       const cls = nameToClass[name];
-      document.querySelectorAll('.user-pick-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll(`.user-pick-btn.${cls}`).forEach(btn => btn.classList.add('active'));
-      document.querySelectorAll('.modal-user-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll(`.modal-user-btn.${cls}`).forEach(btn => btn.classList.add('active'));
-
+      document.querySelectorAll('.user-pick-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`.user-pick-btn.${cls}`).forEach(b => b.classList.add('active'));
+      document.querySelectorAll('.modal-user-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`.modal-user-btn.${cls}`).forEach(b => b.classList.add('active'));
       document.getElementById('userLabel').textContent = name;
       renderCalendar();
     }
@@ -743,31 +364,58 @@
       return 'user-' + (nameToClass[author] || 'onja');
     }
 
+    // Build time selectors
+    const hourSel = document.getElementById('timeHour');
+    const minSel = document.getElementById('timeMin');
+    for (let h = 0; h < 24; h++) {
+      const opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = String(h).padStart(2, '0');
+      hourSel.appendChild(opt);
+    }
+    for (let m = 0; m < 60; m += 10) {
+      const opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = String(m).padStart(2, '0');
+      minSel.appendChild(opt);
+    }
+    // Default to current hour
+    hourSel.value = new Date().getHours();
+    hourSel.disabled = true;
+    minSel.disabled = true;
+
+    function toggleAllday() {
+      isAllday = !isAllday;
+      const btn = document.getElementById('alldayBtn');
+      btn.classList.toggle('active', isAllday);
+      hourSel.disabled = isAllday;
+      minSel.disabled = isAllday;
+    }
+
+    function sortEntries(entries) {
+      return [...entries].sort((a, b) => {
+        if (a.time === 'allday' && b.time === 'allday') return 0;
+        if (a.time === 'allday') return -1;
+        if (b.time === 'allday') return 1;
+        return a.time.localeCompare(b.time);
+      });
+    }
+
+    function formatTime(time) {
+      if (time === 'allday') return '';
+      return time;
+    }
+
     const socket = io();
     let scheduleData = {};
-    let gcalData = {};
     let selectedDateKey = null;
 
-    // Initialize with current month
     const now = new Date();
     let currentYear = now.getFullYear();
     let currentMonth = now.getMonth();
 
-    // Sync initial button state
     pickUser(currentUser);
 
-    // Load Google Calendar events
-    async function loadGcalEvents() {
-      try {
-        const res = await fetch('/api/gcal-events');
-        gcalData = await res.json();
-        renderCalendar();
-      } catch (e) {}
-    }
-    loadGcalEvents();
-    setInterval(loadGcalEvents, 5 * 60 * 1000);
-
-    // Socket events
     socket.on('init', (data) => {
       scheduleData = data;
       renderCalendar();
@@ -781,22 +429,13 @@
         delete scheduleData[dateKey];
       }
       renderCalendar();
-
-      // Update modal if open for this date
-      if (selectedDateKey === dateKey) {
-        renderModalEntries(dateKey);
-      }
+      if (selectedDateKey === dateKey) renderModalEntries(dateKey);
     });
 
     function changeMonth(delta) {
       currentMonth += delta;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-      } else if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
       renderCalendar();
     }
 
@@ -804,51 +443,43 @@
       const grid = document.getElementById('calendarGrid');
       grid.innerHTML = '';
 
-      const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월',
-                          '7월', '8월', '9월', '10월', '11월', '12월'];
+      const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
       document.getElementById('monthTitle').textContent = `${currentYear}년 ${monthNames[currentMonth]}`;
 
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
       const today = new Date();
 
-      // Empty cells before first day
       for (let i = 0; i < firstDay; i++) {
         const cell = document.createElement('div');
         cell.className = 'calendar-cell empty';
         grid.appendChild(cell);
       }
 
-      // Day cells
       for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement('div');
         cell.className = 'calendar-cell';
 
-        const isToday = today.getFullYear() === currentYear &&
-                        today.getMonth() === currentMonth &&
-                        today.getDate() === day;
-        if (isToday) cell.classList.add('today');
+        if (today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === day)
+          cell.classList.add('today');
 
-        const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateKey = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
         const dateNum = document.createElement('div');
         dateNum.className = 'date-number';
         dateNum.textContent = day;
         cell.appendChild(dateNum);
 
-        // Schedule entries + Google Calendar events
-        const entries = scheduleData[dateKey] || [];
-        const gcalEntries = gcalData[dateKey] || [];
-        const allEntries = [...entries, ...gcalEntries];
-        if (allEntries.length > 0) {
+        const entries = sortEntries(scheduleData[dateKey] || []);
+        if (entries.length > 0) {
           const entriesDiv = document.createElement('div');
           entriesDiv.className = 'schedule-entries';
-          allEntries.forEach(entry => {
-            const entryEl = document.createElement('div');
-            entryEl.className = 'schedule-entry';
-            entryEl.classList.add(entry.isGcal ? 'user-gcal' : getUserClass(entry.author));
-            entryEl.textContent = entry.isGcal ? `${entry.text}` : entry.text;
-            entriesDiv.appendChild(entryEl);
+          entries.forEach(entry => {
+            const el = document.createElement('div');
+            el.className = 'schedule-entry ' + getUserClass(entry.author);
+            const timeStr = formatTime(entry.time);
+            el.innerHTML = (timeStr ? `<span class="entry-time">${timeStr}</span>` : '') + entry.text;
+            entriesDiv.appendChild(el);
           });
           cell.appendChild(entriesDiv);
         }
@@ -860,12 +491,19 @@
 
     function openModal(dateKey, day) {
       selectedDateKey = dateKey;
-      const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월',
-                          '7월', '8월', '9월', '10월', '11월', '12월'];
+      const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
       document.getElementById('modalDate').textContent =
         `${currentYear}년 ${monthNames[currentMonth]} ${day}일`;
 
       renderModalEntries(dateKey);
+
+      // Reset time to current + allday on
+      isAllday = true;
+      document.getElementById('alldayBtn').classList.add('active');
+      hourSel.disabled = true;
+      minSel.disabled = true;
+      hourSel.value = new Date().getHours();
+      minSel.value = 0;
 
       document.getElementById('modalInput').value = '';
       document.getElementById('modal').classList.add('active');
@@ -874,41 +512,18 @@
 
     function renderModalEntries(dateKey) {
       const entriesDiv = document.getElementById('modalEntries');
-      const entries = scheduleData[dateKey] || [];
-      const gcalEntries = gcalData[dateKey] || [];
+      const entries = sortEntries(scheduleData[dateKey] || []);
       entriesDiv.innerHTML = '';
-
-      // Show Google Calendar events first
-      gcalEntries.forEach(entry => {
-        const el = document.createElement('div');
-        el.className = 'modal-entry user-gcal';
-        const textSpan = document.createElement('span');
-        textSpan.innerHTML = `<span class="entry-author">G</span> ${entry.text}`;
-        el.appendChild(textSpan);
-        entriesDiv.appendChild(el);
-      });
 
       entries.forEach(entry => {
         const el = document.createElement('div');
-        el.className = 'modal-entry';
-        el.classList.add(getUserClass(entry.author));
+        el.className = 'modal-entry ' + getUserClass(entry.author);
 
         const textSpan = document.createElement('span');
-        textSpan.innerHTML = `<span class="entry-author">${entry.author}</span> ${entry.text}`;
+        const timeLabel = entry.time === 'allday' ? 'ALL DAY' : entry.time;
+        textSpan.innerHTML = `<span class="entry-author">${entry.author}</span>`
+          + `<span class="entry-time-label">${timeLabel}</span> ${entry.text}`;
         el.appendChild(textSpan);
-
-        const actions = document.createElement('div');
-        actions.className = 'modal-entry-actions';
-
-        const gcalBtn = document.createElement('button');
-        gcalBtn.className = 'gcal-btn';
-        gcalBtn.textContent = '+G';
-        gcalBtn.title = '구글 캘린더에 추가';
-        gcalBtn.onclick = (e) => {
-          e.stopPropagation();
-          addToGoogleCalendar(dateKey, entry.author, entry.text);
-        };
-        actions.appendChild(gcalBtn);
 
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
@@ -917,9 +532,7 @@
           e.stopPropagation();
           socket.emit('deleteEntry', { dateKey, entryId: entry.id });
         };
-        actions.appendChild(delBtn);
-
-        el.appendChild(actions);
+        el.appendChild(delBtn);
 
         entriesDiv.appendChild(el);
       });
@@ -935,94 +548,31 @@
       const text = input.value.trim();
       if (!text || !selectedDateKey) return;
 
+      let time = 'allday';
+      if (!isAllday) {
+        const h = String(hourSel.value).padStart(2, '0');
+        const m = String(minSel.value).padStart(2, '0');
+        time = `${h}:${m}`;
+      }
+
       socket.emit('updateSchedule', {
         dateKey: selectedDateKey,
-        text: text,
-        author: currentUser
+        text,
+        author: currentUser,
+        time
       });
 
       input.value = '';
       input.focus();
     }
 
-    // Close modal on overlay click
     document.getElementById('modal').onclick = (e) => {
       if (e.target === document.getElementById('modal')) closeModal();
     };
 
-    // ESC to close modal
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeModal();
     });
-
-    // Settings modal
-    async function openSettings() {
-      document.getElementById('settingsModal').classList.add('active');
-      await renderGcalList();
-    }
-
-    function closeSettings() {
-      document.getElementById('settingsModal').classList.remove('active');
-    }
-
-    document.getElementById('settingsModal').onclick = (e) => {
-      if (e.target === document.getElementById('settingsModal')) closeSettings();
-    };
-
-    async function renderGcalList() {
-      const res = await fetch('/api/gcal-urls');
-      const urls = await res.json();
-      const list = document.getElementById('gcalList');
-      list.innerHTML = '';
-      if (urls.length === 0) {
-        list.innerHTML = '<div style="color:#999;font-size:14px;margin-bottom:8px;">등록된 캘린더가 없습니다</div>';
-        return;
-      }
-      urls.forEach((entry, i) => {
-        const el = document.createElement('div');
-        el.className = 'gcal-item';
-        el.innerHTML = `<span>${entry.label}</span>`;
-        const btn = document.createElement('button');
-        btn.className = 'gcal-remove';
-        btn.textContent = '×';
-        btn.onclick = async () => {
-          await fetch('/api/gcal-urls/' + i, { method: 'DELETE' });
-          await renderGcalList();
-          await loadGcalEvents();
-        };
-        el.appendChild(btn);
-        list.appendChild(el);
-      });
-    }
-
-    async function addGcalUrl() {
-      const label = document.getElementById('gcalLabel').value.trim() || 'Google';
-      const url = document.getElementById('gcalUrl').value.trim();
-      if (!url) return;
-      await fetch('/api/gcal-urls', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, label })
-      });
-      document.getElementById('gcalLabel').value = '';
-      document.getElementById('gcalUrl').value = '';
-      await renderGcalList();
-      await loadGcalEvents();
-    }
-
-    function addToGoogleCalendar(dateKey, author, text) {
-      const d = dateKey.replace(/-/g, '');
-      const title = encodeURIComponent(`[${author}] ${text}`);
-      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${d}/${d}&details=${encodeURIComponent('온자 캘린더')}`;
-      window.open(url, '_blank');
-    }
-
-    function subscribeGCal() {
-      const icsUrl = window.location.origin + '/api/calendar.ics';
-      const gcalUrl = 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(icsUrl);
-      window.open(gcalUrl, '_blank');
-      alert('구글 캘린더에서 구독을 추가하면\\n온자 캘린더 스케줄이 자동으로 동기화됩니다!\\n\\nURL: ' + icsUrl);
-    }
 
     function logout() {
       sessionStorage.clear();
