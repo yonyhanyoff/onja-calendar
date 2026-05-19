@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>온자 앨범</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Gaegu', cursive;
+      background: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto 20px;
+      padding: 0 4px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .back-btn {
+      font-family: 'Gaegu', cursive;
+      font-size: 16px;
+      padding: 6px 16px;
+      background: none;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #888;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      border-color: #aaa;
+      color: #555;
+    }
+
+    /* Photo Grid */
+    .photo-grid {
+      max-width: 900px;
+      margin: 0 auto;
+      columns: 3;
+      column-gap: 12px;
+    }
+
+    .photo-item {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid #eee;
+    }
+
+    .photo-item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .photo-item img {
+      width: 100%;
+      display: block;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      font-size: 36px;
+      color: white;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 40px;
+      color: white;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 18px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .lightbox-prev {
+      left: 16px;
+    }
+
+    .lightbox-next {
+      right: 16px;
+    }
+
+    .lightbox-counter {
+      color: white;
+      font-size: 18px;
+      margin-top: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .photo-grid {
+        columns: 2;
+        column-gap: 8px;
+      }
+
+      .photo-item {
+        margin-bottom: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <img src="title.jpg" alt="" class="header-logo">
+      <span class="header-title">온자 앨범</span>
+    </div>
+    <a href="/calendar.html" class="back-btn">달력으로</a>
+  </div>
+
+  <div class="photo-grid" id="photoGrid"></div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="navPhoto(-1)">&larr;</button>
+    <button class="lightbox-nav lightbox-next" onclick="navPhoto(1)">&rarr;</button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+
+  <script>
+    // Auth check
+    if (!sessionStorage.getItem('loggedIn')) {
+      window.location.href = '/';
+    }
+
+    const photos = [
+      'photos/IMG_5009.jpg',
+      'photos/IMG_1453.jpg',
+      'photos/IMG_1454.jpg',
+      'photos/IMG_1746.jpg',
+      'photos/IMG_2024.jpg',
+      'photos/IMG_3457.jpg',
+      'photos/IMG_4884.JPG',
+      'photos/IMG_7367.PNG',
+      'photos/IMG_7779 2.jpg',
+      'photos/IMG_7931 2.jpg',
+      'photos/IMG_7939.jpg',
+      'photos/IMG_8110 2.JPG',
+      'photos/IMG_8111 2.JPG',
+      'photos/IMG_8286.jpg',
+      'photos/IMG_8725.JPG',
+      'photos/IMG_8981.jpg',
+      'photos/IMG_9027.jpg'
+    ];
+
+    let currentIndex = 0;
+
+    // Build grid
+    const grid = document.getElementById('photoGrid');
+    photos.forEach((src, i) => {
+      const item = document.createElement('div');
+      item.className = 'photo-item';
+      item.onclick = () => openLightbox(i);
+      const img = document.createElement('img');
+      img.src = src;
+      img.loading = 'lazy';
+      item.appendChild(img);
+      grid.appendChild(item);
+    });
+
+    function openLightbox(index) {
+      currentIndex = index;
+      updateLightbox();
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+
+    function navPhoto(delta) {
+      currentIndex = (currentIndex + delta + photos.length) % photos.length;
+      updateLightbox();
+    }
+
+    function updateLightbox() {
+      document.getElementById('lightboxImg').src = photos[currentIndex];
+      document.getElementById('lightboxCounter').textContent = `${currentIndex + 1} / ${photos.length}`;
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      const lb = document.getElementById('lightbox');
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navPhoto(-1);
+      if (e.key === 'ArrowRight') navPhoto(1);
+    });
+
+    // Click overlay to close
+    document.getElementById('lightbox').onclick = (e) => {
+      if (e.target === document.getElementById('lightbox')) closeLightbox();
+    };
+  </script>
+</body>
+</html>

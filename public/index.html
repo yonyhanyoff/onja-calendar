@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>온자 캘린더</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Gaegu', cursive;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .title-image {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e0e0e0;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 280px;
+    }
+
+    .login-form input {
+      font-family: 'Gaegu', cursive;
+      font-size: 18px;
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .login-form input:focus {
+      border-color: #a0c4ff;
+    }
+
+    .login-form input::placeholder {
+      color: #bbb;
+    }
+
+    .login-btn {
+      font-family: 'Gaegu', cursive;
+      font-size: 20px;
+      font-weight: 700;
+      width: 100%;
+      padding: 12px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .login-btn:hover {
+      background: #555;
+    }
+
+    .error-msg {
+      font-size: 16px;
+      color: #ff6b6b;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="title.jpg" alt="온자" class="title-image">
+    <form class="login-form" onsubmit="login(event)">
+      <input type="text" id="userId" placeholder="ID" autocomplete="off">
+      <input type="text" id="userPw" placeholder="PW" autocomplete="off" style="-webkit-text-security: disc;">
+      <button type="submit" class="login-btn">들어가기</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <script>
+    async function login(e) {
+      e.preventDefault();
+      const id = document.getElementById('userId').value;
+      const pw = document.getElementById('userPw').value;
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, pw })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        sessionStorage.setItem('loggedIn', 'true');
+        sessionStorage.setItem('user', id);
+        window.location.href = '/calendar.html';
+      } else {
+        document.getElementById('errorMsg').textContent = data.message;
+      }
+    }
+  </script>
+</body>
+</html>
